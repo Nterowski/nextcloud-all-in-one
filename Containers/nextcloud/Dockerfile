@@ -23,6 +23,8 @@ COPY app /usr/src/nextcloud/apps/nextcloud-aio
 COPY Containers/nextcloud/root.motd /root.motd
 # AIO cloning end # Do not remove or change this line!
 
+COPY Containers/nextcloud/custom_apps/user_external /usr/src/nextcloud/custom_apps/user_external
+
 VOLUME /mnt/ncdata
 VOLUME /var/www/html
 

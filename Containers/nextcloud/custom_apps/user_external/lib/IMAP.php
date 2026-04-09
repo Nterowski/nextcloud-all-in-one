@@ -52,13 +52,13 @@ class IMAP extends Base {
 	 *
 	 * @param string $uid Nextcloud user id (already lower-cased)
 	 */
-	private function setEmailFromLoginIfEmpty(string $uid): void {
-		if (filter_var($uid, FILTER_VALIDATE_EMAIL) === false) {
+	private function setEmailFromLoginIfEmpty(string $uid, string $emailCandidate): void {
+		if (filter_var($emailCandidate, FILTER_VALIDATE_EMAIL) === false) {
 			return;
 		}
 		$user = \OC::$server->getUserManager()->get($uid);
 		if ($user !== null && empty($user->getEMailAddress())) {
-			$user->setEMailAddress($uid);
+			$user->setEMailAddress($emailCandidate);
 		}
 	}
 
@@ -121,7 +121,7 @@ class IMAP extends Base {
 			curl_close($ch);
 			$uid = mb_strtolower($uid);
 			$this->storeUser($uid, $groups);
-			$this->setEmailFromLoginIfEmpty($uid);
+			$this->setEmailFromLoginIfEmpty($uid, mb_strtolower($username));
 			return $uid;
 		} elseif ($errorcode === CURLE_COULDNT_CONNECT ||
 			   $errorcode === CURLE_SSL_CONNECT_ERROR ||

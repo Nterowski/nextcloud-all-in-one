@@ -47,6 +47,22 @@ class IMAP extends Base {
 	}
 
 	/**
+	 * If the uid looks like an e-mail address and the account has no e-mail
+	 * set yet, use the uid as the e-mail address.
+	 *
+	 * @param string $uid Nextcloud user id (already lower-cased)
+	 */
+	private function setEmailFromLoginIfEmpty(string $uid): void {
+		if (filter_var($uid, FILTER_VALIDATE_EMAIL) === false) {
+			return;
+		}
+		$user = \OC::$server->getUserManager()->get($uid);
+		if ($user !== null && empty($user->getEMailAddress())) {
+			$user->setEMailAddress($uid);
+		}
+	}
+
+	/**
 	 * Check if the password is correct without logging in the user
 	 *
 	 * @param string $uid      The username
@@ -105,6 +121,7 @@ class IMAP extends Base {
 			curl_close($ch);
 			$uid = mb_strtolower($uid);
 			$this->storeUser($uid, $groups);
+			$this->setEmailFromLoginIfEmpty($uid);
 			return $uid;
 		} elseif ($errorcode === CURLE_COULDNT_CONNECT ||
 			   $errorcode === CURLE_SSL_CONNECT_ERROR ||
